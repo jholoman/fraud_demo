@@ -70,8 +70,8 @@ public class FraudHbaseAsyncSerializer implements AsyncHbaseEventSerializer {
         //avg_spent 18, txn_count 19, score 20, distance 21, elapsed_Sec 22
 
         log.debug(tokens[0] + "-" + tokens[1]);
-        log.debug(txn);
-        if (log.isDebugEnabled()) {
+        log.trace(txn);
+        if (log.isTraceEnabled()) {
             for (int i = 0; i < tokens.length; i++) {
                 log.info(i + " " + tokens[i]);
             }
