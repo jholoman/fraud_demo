@@ -3,6 +3,7 @@ package cloudera.se.fraud.demo.util;
 import cloudera.se.fraud.demo.model.DataModelConsts;
 import cloudera.se.fraud.demo.model.CustomerPOJO;
 import cloudera.se.fraud.demo.model.StorePOJO;
+import cloudera.se.fraud.demo.service.HbaseFraudService;
 import java.security.MessageDigest;
 
 import java.io.BufferedReader;
@@ -120,6 +121,7 @@ public class LoadSeedData {
             cust.setHomeLat(lat);
             cust.setHomeLon(lon);
             customerList.add(cust);
+            cust.setLastTransactionTime("2014-10-09 15:06:08");
         }
         br.close();
 
@@ -155,21 +157,17 @@ public class LoadSeedData {
 
         for (CustomerPOJO pojo: pojoList) {
 
-            byte [] rowKey = "0".getBytes();
-            try {
-                MessageDigest md = MessageDigest.getInstance("MD5");
+            String rowKey = HbaseFraudService.getHashedRowKey(pojo.getCustomerId());
 
-            rowKey =  md.digest(Bytes.toBytes(pojo.getCustomerId()));
-            } catch (NoSuchAlgorithmException e){}
-
-            Put put = new Put(rowKey);
+            Put put = new Put(Bytes.toBytes(rowKey));
             put.add(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.C_NAME_COL, Bytes.toBytes(pojo.getName())); //+ "|" + pojo.getHomeLocation() + "|" +  System.currentTimeMillis()));
             put.add(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.C_LAT_COL, Bytes.toBytes(pojo.getHomeLat()));
             put.add(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.C_LON_COL, Bytes.toBytes(pojo.getHomeLon()));
-            put.add(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.LAST_TXN_AMOUNT_COL, Bytes.toBytes(0.00 ));
-            put.add(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.AVG_SPENT_COL, Bytes.toBytes(0.00));
-            put.add(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.TOTAL_SPENT_COL, Bytes.toBytes(0.00));
-            put.add(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.TOTAL_TXNS_COL, Bytes.toBytes(0.00));
+            put.add(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.LAST_TXN_TIME, Bytes.toBytes(pojo.getLastTransactionTime()));
+            put.add(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.LAST_TXN_AMOUNT_COL, Bytes.toBytes(String.valueOf(0.00) ));
+            put.add(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.AVG_SPENT_COL, Bytes.toBytes(String.valueOf(0.00)));
+            put.add(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.TOTAL_SPENT_COL, Bytes.toBytes(String.valueOf(0.00)));
+            put.add(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.TOTAL_TXNS_COL, Bytes.toBytes(String.valueOf(0)));
             put.add(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.LAST_20A_COL, Bytes.toBytes(""));
             put.add(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.LAST_20L_COL, Bytes.toBytes(""));
 

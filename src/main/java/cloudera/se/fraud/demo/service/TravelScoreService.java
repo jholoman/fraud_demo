@@ -2,6 +2,11 @@ package cloudera.se.fraud.demo.service;
 
 import cloudera.se.fraud.demo.model.TravelResultPOJO;
 import cloudera.se.fraud.demo.model.TravelScorePOJO;
+import org.apache.log4j.Logger;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
@@ -17,8 +22,8 @@ import java.util.Random;
  */
 public class TravelScoreService {
 
+    private static final Logger log = Logger.getLogger(TravelScoreService.class);
     public static TravelResultPOJO calcTravelScore(TravelScorePOJO pojo) throws Exception {
-
         String[] location1 = pojo.getLocation1().split("\\,");
         String[] location2 = pojo.getLocation2().split("\\,");
         double lat1 = Double.parseDouble(location1[0]);
@@ -30,7 +35,6 @@ public class TravelScoreService {
 
         long elapsedSecs = getTimeDifference(t1,t2);
         double distance = getDistance(lat1, lon1, lat2, lon2);
-
         int score = processScore(elapsedSecs,distance);
 
        TravelResultPOJO result = new TravelResultPOJO();
@@ -38,7 +42,6 @@ public class TravelScoreService {
         result.setScore(score);
         result.setDistance(distance);
         result.setElapsedSec(elapsedSecs);
-
         return result;
 
     }
@@ -46,15 +49,28 @@ public class TravelScoreService {
     private static int processScore(long elapsedSecs, double distance) {
 
         /** TODO a real calculation **/
+        // Speed = Distance(miles) ÷ Time(seconds) * 24 * 60
 
-        int maxRate = 45 * 3600; // 1mph =
-        Random rn = new Random();
-        int answer = (rn.nextInt(11));
+        int score;
+        double mph = distance / (elapsedSecs/3600);
+        log.info("distance: " + distance);
+        log.info("elapsedSec: " + elapsedSecs);
+        log.info("mph: " + mph);
+        double stddev = 6;
+        double mean = 45;
+        double z = (mph-mean)/stddev;
 
-        // This is really simple. If the distance is >
-        System.out.println(answer);
+        if (z < 0) {  //mph < 45 we just approve it
+          score=1;}
+        else if(z > 0 && z <= 3 ) {
+            score = 2;
+        }
+        else if (z > 3  && z <= 6) {
+            score = 3;
+        } else { score=4; }
 
-        return answer;
+        log.info("z: " + z);
+        return score;
 
     }
 
@@ -71,11 +87,21 @@ public class TravelScoreService {
         dist = Math.acos(dist);
         dist = radiansToDegrees(dist);
         dist = dist * 60 * 1.1515;
-        return (dist);
+
+        return round(dist,2);
+
+    }
+
+    public static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
     }
 
     private static long getTimeDifference(String t1, String t2) {
-        SimpleDateFormat format = new SimpleDateFormat("yy/MM/dd HH:mm:ss");
+        SimpleDateFormat format = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
         Date d1 = null;
         Date d2 = null;
         try {

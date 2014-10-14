@@ -1,15 +1,13 @@
 package cloudera.se.fraud.demo.model;
 
-import java.util.Set;
-
 public class CustomerPOJO {
 
     long customerId;
     String name;
     String homeLat;
     String homeLon;
-    Set<String> last20Locations;
-    Set<Double> last20Amounts;
+    String last20Locations;
+    String last20Amounts;
     double lastTransactionAmount;
     String lastTransactionLat;
     String lastTransactionLon;
@@ -17,6 +15,7 @@ public class CustomerPOJO {
     double totalSpent;
     double avgSpent;
     int transactionCount;
+    String rowKey;
 
     public CustomerPOJO() {
     }
@@ -33,7 +32,8 @@ public class CustomerPOJO {
                         double avgSpent,
                         int transactionCount,
                         String last20Locations,
-                        String last20Amounts) {
+                        String last20Amounts,
+                        String rowkey) {
 
         this.customerId = customerId;
         this.homeLat = lat;
@@ -46,6 +46,9 @@ public class CustomerPOJO {
         this.totalSpent = totalSpent;
         this.avgSpent = avgSpent;
         this.transactionCount = transactionCount;
+        this.last20Locations = last20Locations;
+        this.last20Amounts = last20Amounts;
+        this.rowKey = rowkey;
 
         /*
         HashSet<Double> amountHS = new HashSet<Double>();
@@ -82,29 +85,31 @@ public class CustomerPOJO {
         return this.homeLat;
     }
 
-    public void setHomeLat(String value) { this.homeLat = value; }
+    public void setHomeLat(String value) {
+        this.homeLat = value;
+    }
 
-        public String getHomeLon() {
-            return this.homeLon;
-        }
+    public String getHomeLon() {
+        return this.homeLon;
+    }
 
     public void setHomeLon(String value) {
         this.homeLon = value;
     }
 
-    public Set<String> getLast20Locations() {
+    public String getLast20Locations() {
         return this.last20Locations;
     }
 
-    public void setLast20Locations(Set<String> value) {
+    public void setLast20Locations(String value) {
         this.last20Locations = value;
     }
 
-    public Set<Double> getLast20Amounts() {
+    public String getLast20Amounts() {
         return this.last20Amounts;
     }
 
-    public void setLast20Amounts(Set<Double> value) {
+    public void setLast20Amounts(String value) {
         this.last20Amounts = value;
     }
 
@@ -162,5 +167,33 @@ public class CustomerPOJO {
 
     public void setLastTransactionTime(String value) {
         this.lastTransactionTime = value;
+    }
+
+    public String getRowKey() {
+        return rowKey;
+    }
+
+    public void setRowKey(String value) {
+        this.rowKey = value;
+    }
+
+    @Override
+    public String toString() {
+        return "CustomerPOJO{" +
+                "customerId=" + customerId +
+                ", name='" + name + '\'' +
+                ", homeLat='" + homeLat + '\'' +
+                ", homeLon='" + homeLon + '\'' +
+                ", last20Locations='" + last20Locations + '\'' +
+                ", last20Amounts='" + last20Amounts + '\'' +
+                ", lastTransactionAmount=" + lastTransactionAmount +
+                ", lastTransactionLat='" + lastTransactionLat + '\'' +
+                ", lastTransactionLon='" + lastTransactionLon + '\'' +
+                ", lastTransactionTime='" + lastTransactionTime + '\'' +
+                ", totalSpent=" + totalSpent +
+                ", avgSpent=" + avgSpent +
+                ", transactionCount=" + transactionCount +
+                ", rowKey='" + rowKey + '\'' +
+                '}';
     }
 }
