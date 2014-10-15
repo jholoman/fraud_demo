@@ -46,11 +46,18 @@ public class TravelScoreService {
 
     }
 
-    private static int processScore(long elapsedSecs, double distance) {
+    public static <T> T nvl(T a, T b) {
+        return (a == null)?b:a;
+    }
+
+    public static int processScore(long elapsedSecs, double distance) {
 
         /** TODO a real calculation **/
         // Speed = Distance(miles) ÷ Time(seconds) * 24 * 60
 
+        if (elapsedSecs == 0) {
+            elapsedSecs = 1;
+        }
         int score;
         double mph = distance / (elapsedSecs/3600);
         log.info("distance: " + distance);

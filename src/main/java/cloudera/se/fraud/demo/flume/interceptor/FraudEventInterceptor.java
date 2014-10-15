@@ -114,11 +114,22 @@ public class FraudEventInterceptor implements Interceptor {
             log.debug(e);
             e.printStackTrace();
         }
-
-        /*TODO make this work */
-        String authResult = "Y";
-        String alertYN = "Y";
-
+        String authResult = "N";
+        String alertYN = "N";
+        switch (result.getScore()) {
+            case 1:  authResult = "Y";
+                     alertYN = "N";
+                break;
+            case 2:  authResult = "Y";
+                     alertYN = "N";
+                break;
+            case 3:  authResult = "Y";
+                     alertYN = "Y";
+                break;
+            case 4:  authResult = "N";
+                     alertYN = "Y";
+                break;
+        }
         FinalTransactionPOJO finalTxn = new FinalTransactionPOJO(
           txnId, customer.getRowKey(), txnTime, txnAmount, merchantId, txnLat, txnLon, customer.getLastTransactionAmount(),
           customer.getLastTransactionLat(), customer.getLastTransactionLon(), customer.getLastTransactionTime(),
