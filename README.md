@@ -8,7 +8,7 @@ The demo is built using CDH 5.2 and requires Flume and HBase to be configured. I
 
 Below are detailed steps and configuration in order to setup and run this example. Cloudera Manager(CM) is used. 
 
-#Setup
+##Setup
 
 The project can be built with 
 
@@ -27,9 +27,9 @@ Follow the prompts.
     
     bin/kafka-topics --zookeeper zk-host:port/kafka --create --topic flume.txn --replication-factor 1 --partitions 1
     bin/kafka-topics --zookeeper zk-host:port/kafka --create --topic flume.auths --replication-factor 1 --partitions 1
-*Note the need to specify the ZK root (default kafka) after the port in the --zookeeper option
+_*Note the need to specify the ZK root (default kafka) after the port in the --zookeeper option_
 
-4) Copy the fraud-demo.jar to /opt/cloudera/parcels/CDH/lib/flume-ng/lib/ on the Flume agent host
+4) Copy the fraud-demo.jar to /opt/cloudera/parcels/CDH/lib/flume-ng/lib/ on the Flume agent host<br>
 5) Copy the sample flume configuration and modify with appropriate values 
 cp fraud.demo.jar /opt/cloudera/parcels/CDH/lib/flume-ng/lib/
 
@@ -37,27 +37,31 @@ cp fraud.demo.jar /opt/cloudera/parcels/CDH/lib/flume-ng/lib/
 
     java -cp ../target/fraud.demo.jar:`hbase classpath` cloudera.se.fraud.demo.util.LoadSeedData both
 
-8) To generate transactions using the provided scripts:
+7) To generate transactions using the provided scripts:
   1. yum install python-pip
   2. pip install kafka-python
   3. mkdir scripts/logs
   4. Modify the broker and topic in gen_transactions.py  
   5. Execute gen_transactions.py #of transactions eg:
   
-`python gen_transactions.py 100
+```python 
+gen_transactions.py 100
+```
 
-9) To consume messages
+
+8) To consume messages
   1. Modify the broker and topic in read_kafka.py
   2. Start the consumer:
-`python read_transactions.py
 
+```python 
+read_transactions.py 
+```
 
 All of the debug / log messages for the Interceptor will be in the /var/log/flume-ng/interceptor.log file
 Logging for the python consumer/producers will ge in the logs/ directory you created before.
 
 
-#Code Walkthrough
-
+##Code Walkthrough
 
 
 
