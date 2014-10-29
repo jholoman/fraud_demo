@@ -86,31 +86,11 @@ UID|CC #|Transaction Date|Amount|StoreID
 31f16d6e-5f2a-11e4-8c2f-06902e00013f|4024007177047|2014-10-28 22:12:35|60.29|1083
 ```
 
-The customer table is modeled after com.cloudera.se.demo.fraud.model.CustomerPOJO
 ### Java Application
-<ul>
-<li>cloudera.se.fraud.demo</li>
-  <ul> 
-       <li>flume.interceptor</li>
-        <ul>
-            <li>FraudEventInterceptor</li>
-       </ul>
-       <li>model</li>
-       <ul>
-         <li>CustomerPOJO</li>
-         <li>DataModelConstants</li>
-         <li>FinalTransactionsPOJO</li>
-         <li>StorePOJO</li>
-         <li>TravelResultPOJO</li>
-         <li>TravelScorePOJO</li>
-        </ul>       
-          <li>service</li>
-           <ul>
-             <li>HbaseFraudService</li>
-             <li>TravelScoreService</li>
-           </ul>
-   </ul>
-</ul>
+
+
+The customer table is modeled after com.cloudera.se.demo.fraud.model.CustomerPOJO
+
 ```java
 public class CustomerPOJO {
 
