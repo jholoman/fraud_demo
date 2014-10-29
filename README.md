@@ -24,6 +24,7 @@ Then from the CM home screen, Add Service->Kafka
 Follow the prompts.
 
 3) Create the kafka topics:
+    
     bin/kafka-topics --zookeeper zk-host:port/kafka --create --topic flume.txn --replication-factor 1 --partitions 1
     bin/kafka-topics --zookeeper zk-host:port/kafka --create --topic flume.auths --replication-factor 1 --partitions 1
 *Note the need to specify the ZK root (default kafka) after the port in the --zookeeper option
@@ -37,13 +38,13 @@ cp fraud.demo.jar /opt/cloudera/parcels/CDH/lib/flume-ng/lib/
     java -cp ../target/fraud.demo.jar:`hbase classpath` cloudera.se.fraud.demo.util.LoadSeedData both
 
 8) To generate transactions using the provided scripts:
-  1) yum install python-pip
-  2) pip install kafka-python
-  3) mkdir scripts/logs
-  4) Modify the broker and topic in gen_transactions.py
-  5) execute gen_transactions.py #of transactions eg:
-    
-    python gen_transactions.py 100
+  1. yum install python-pip
+  2. pip install kafka-python
+  3. mkdir scripts/logs
+  4. Modify the broker and topic in gen_transactions.py
+  5. execute gen_transactions.py #of transactions eg:
+  
+       python gen_transactions.py 100
 
 9) To consume messages
   1) Modify the broker and topic in read_kafka.py
