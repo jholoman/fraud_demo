@@ -87,6 +87,39 @@ UID|CC #|Transaction Date|Amount|StoreID
 ```
 
 ### Java Application
+####Project Structure
+
+<ul>
+<li>cloudera.se.fraud.demo</li>
+  <ul> 
+       <li>flume.interceptor</li>
+        <ul>
+            <li>FraudEventInterceptor</li>
+       </ul>
+       <li>model</li>
+       <ul>
+         <li>CustomerPOJO</li>
+         <li>DataModelConstants</li>
+         <li>FinalTransactionsPOJO</li>
+         <li>StorePOJO</li>
+         <li>TravelResultPOJO</li>
+         <li>TravelScorePOJO</li>
+        </ul>       
+          <li>service</li>
+           <ul>
+             <li>HbaseFraudService</li>
+             <li>TravelScoreService</li>
+           </ul>
+      
+           <li>util</li>
+             <ul> 
+                <li>LoadSeedData</li>
+              </ul>
+            
+   
+</ul>
+
+
 
 
 The customer table is modeled after com.cloudera.se.demo.fraud.model.CustomerPOJO
