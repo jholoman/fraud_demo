@@ -41,16 +41,15 @@ cp fraud.demo.jar /opt/cloudera/parcels/CDH/lib/flume-ng/lib/
   1. yum install python-pip
   2. pip install kafka-python
   3. mkdir scripts/logs
-  4. Modify the broker and topic in gen_transactions.py
-  5. execute gen_transactions.py #of transactions eg:
+  4. Modify the broker and topic in gen_transactions.py  
+  5. Execute gen_transactions.py #of transactions eg:
   
-       python gen_transactions.py 100
+`python gen_transactions.py 100
 
 9) To consume messages
-  1) Modify the broker and topic in read_kafka.py
-  2) Start the consumer:
-  
-      python read_transactions.py
+  1. Modify the broker and topic in read_kafka.py
+  2. Start the consumer:
+`python read_transactions.py
 
 
 All of the debug / log messages for the Interceptor will be in the /var/log/flume-ng/interceptor.log file
