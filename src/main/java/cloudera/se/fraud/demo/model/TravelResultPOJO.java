@@ -8,8 +8,7 @@ public class TravelResultPOJO {
 
     long elapsedSec;
 
-    public TravelResultPOJO() {
-    }
+    public TravelResultPOJO() { }
 
     public int getScore() {
         return this.score;

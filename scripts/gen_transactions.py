@@ -50,7 +50,7 @@ clines = open('customers_final.txt').read().splitlines()
 slines = open('stores_final.txt').read().splitlines()
 
 logger.info(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-for c_num in range(1,iterations):
+for c_num in range(0,iterations):
     #print ("iteration " + str(c_num))
     random_customer_line=random.choice(clines)
     random_store_line =random.choice(slines)

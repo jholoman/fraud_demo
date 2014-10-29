@@ -4,6 +4,7 @@ import cloudera.se.fraud.demo.model.DataModelConsts;
 import cloudera.se.fraud.demo.model.CustomerPOJO;
 import cloudera.se.fraud.demo.model.StorePOJO;
 import cloudera.se.fraud.demo.service.HbaseFraudService;
+
 import java.security.MessageDigest;
 
 import java.io.BufferedReader;
@@ -26,7 +27,6 @@ import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.log4j.Logger;
 
-
 /**
  * Created by jholoman on 9/27/14.
  */
@@ -42,20 +42,17 @@ public class LoadSeedData {
         }
         String table = args[0];
 
-
         if (table.equals("customer")) {
             loadCustomers("customers_final.txt");
-        } else if (table.equals("store")){
-           loadStores("stores_final.txt") ;
+        } else if (table.equals("store")) {
+            loadStores("stores_final.txt");
         } else if (table.equals("both")) {
             loadCustomers("customers_final.txt");
             loadStores("stores_final.txt");
         }
     }
-
-
     public static void loadStores(String filename) throws Exception, IOException {
-        boolean result = createProfileTable(DataModelConsts.STORE_TABLE, DataModelConsts.STORE_COLUMN_FAMILY);
+        createProfileTable(DataModelConsts.STORE_TABLE, DataModelConsts.STORE_COLUMN_FAMILY);
         BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(filename), "UTF8"));
 
         String line;
@@ -93,18 +90,15 @@ public class LoadSeedData {
 
             storeList.add(store);
         }
-           br.close();
-
+        br.close();
         insertStores(storeList);
-
     }
-    public static void loadCustomers(String filename) throws Exception,IOException {
-        boolean result = createProfileTable(DataModelConsts.CUSTOMER_TABLE,DataModelConsts.CUSTOMER_COLUMN_FAMILY);
+    public static void loadCustomers(String filename) throws Exception, IOException {
+        createProfileTable(DataModelConsts.CUSTOMER_TABLE, DataModelConsts.CUSTOMER_COLUMN_FAMILY);
         BufferedReader br = new BufferedReader(new FileReader(filename));
         String line;
-        StringBuilder buf  = new StringBuilder();
+        StringBuilder buf = new StringBuilder();
         ArrayList<CustomerPOJO> customerList = new ArrayList<CustomerPOJO>();
-
         while ((line = br.readLine()) != null) {
             String[] data = line.split("\\|");
             System.out.println(data[0]);
@@ -124,80 +118,59 @@ public class LoadSeedData {
             cust.setLastTransactionTime("2014-10-09 15:06:08");
         }
         br.close();
-
-
         insertCustomers(customerList);
-
-
     }
-
-    public static boolean createProfileTable(byte[] tableName, byte[] columnFamily) throws Exception,IOException {
+    public static void createProfileTable(byte[] tableName, byte[] columnFamily) throws Exception, IOException {
         Configuration conf = HBaseConfiguration.create();
         HBaseAdmin hbase = new HBaseAdmin(conf);
         HTableDescriptor desc = new HTableDescriptor(TableName.valueOf(tableName));
         if (hbase.tableExists(tableName)) {
-                hbase.disableTable(tableName);
-                hbase.deleteTable(tableName);
+            hbase.disableTable(tableName);
+            hbase.deleteTable(tableName);
         }
-
         HColumnDescriptor family = new HColumnDescriptor(columnFamily);
         desc.addFamily(family);
         hbase.createTable(desc);
-      return true;
     }
-
     public static void insertCustomers(ArrayList<CustomerPOJO> pojoList)
-            throws Exception,IOException {
-
+            throws Exception, IOException {
 
         Configuration conf = HBaseConfiguration.create();
-        HTable table = new HTable(conf,DataModelConsts.CUSTOMER_TABLE);
+        HTable table = new HTable(conf, DataModelConsts.CUSTOMER_TABLE);
 
         ArrayList<Row> actions = new ArrayList<Row>();
 
-        for (CustomerPOJO pojo: pojoList) {
-
+        for (CustomerPOJO pojo : pojoList) {
             String rowKey = HbaseFraudService.getHashedRowKey(pojo.getCustomerId());
-
             Put put = new Put(Bytes.toBytes(rowKey));
             put.add(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.C_NAME_COL, Bytes.toBytes(pojo.getName())); //+ "|" + pojo.getHomeLocation() + "|" +  System.currentTimeMillis()));
             put.add(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.C_LAT_COL, Bytes.toBytes(pojo.getHomeLat()));
             put.add(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.C_LON_COL, Bytes.toBytes(pojo.getHomeLon()));
             put.add(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.LAST_TXN_TIME, Bytes.toBytes(pojo.getLastTransactionTime()));
-            put.add(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.LAST_TXN_AMOUNT_COL, Bytes.toBytes(String.valueOf(0.00) ));
+            put.add(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.LAST_TXN_AMOUNT_COL, Bytes.toBytes(String.valueOf(0.00)));
             put.add(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.AVG_SPENT_COL, Bytes.toBytes(String.valueOf(0.00)));
             put.add(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.TOTAL_SPENT_COL, Bytes.toBytes(String.valueOf(0.00)));
             put.add(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.TOTAL_TXNS_COL, Bytes.toBytes(String.valueOf(0)));
             put.add(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.LAST_20A_COL, Bytes.toBytes(""));
             put.add(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.LAST_20L_COL, Bytes.toBytes(""));
-
             actions.add(put);
         }
 
         Object[] results = new Object[actions.size()];
-        try
-        {
+        try {
             table.batch(actions, results);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
-
-
     public static void insertStores(ArrayList<StorePOJO> pojoList)
-            throws Exception,IOException {
-
+            throws Exception, IOException {
 
         Configuration conf = HBaseConfiguration.create();
-        HTable table = new HTable(conf,DataModelConsts.STORE_TABLE);
-
+        HTable table = new HTable(conf, DataModelConsts.STORE_TABLE);
         ArrayList<Row> actions = new ArrayList<Row>();
 
-        for (StorePOJO pojo: pojoList) {
-
+        for (StorePOJO pojo : pojoList) {
             //int salt = pojo.getMerchantId() % 4;
             //byte[] rowKey =  Bytes.toBytes(StringUtils.leftPad(Integer.toString(salt), 0, "0") + "-" + pojo.getMerchantId() );
             byte[] rowKey = Bytes.toBytes(pojo.getMerchantId());
@@ -205,27 +178,17 @@ public class LoadSeedData {
             Put put = new Put(rowKey);
             put.add(DataModelConsts.STORE_COLUMN_FAMILY, DataModelConsts.STORE_NAME_COL, Bytes.toBytes(pojo.getName()));
             put.add(DataModelConsts.STORE_COLUMN_FAMILY, DataModelConsts.STORE_ADDRESS_COL, Bytes.toBytes(pojo.getAddress()));
-            put.add(DataModelConsts.STORE_COLUMN_FAMILY, DataModelConsts.STORE_LOCATION_COL, Bytes.toBytes(pojo.getLocation() ));
+            put.add(DataModelConsts.STORE_COLUMN_FAMILY, DataModelConsts.STORE_LOCATION_COL, Bytes.toBytes(pojo.getLocation()));
             put.add(DataModelConsts.STORE_COLUMN_FAMILY, DataModelConsts.STORE_PHONE_COL, Bytes.toBytes(pojo.getPhone()));
             put.add(DataModelConsts.STORE_COLUMN_FAMILY, DataModelConsts.STORE_MERCHANT_TYPE_COL, Bytes.toBytes(pojo.getMerchantType()));
             put.add(DataModelConsts.STORE_COLUMN_FAMILY, DataModelConsts.STORE_MCC_COL, Bytes.toBytes(pojo.getMcc()));
-
             actions.add(put);
         }
-
         Object[] results = new Object[actions.size()];
-        try
-        {
+        try {
             table.batch(actions, results);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
-
-
-
-
 }

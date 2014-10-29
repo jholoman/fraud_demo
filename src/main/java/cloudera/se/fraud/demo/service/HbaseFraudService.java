@@ -79,6 +79,7 @@ public class HbaseFraudService {
 
         try {
 
+            /* Yes I know everything is a string, it's a demo **/
             String name = Bytes.toString(r.getValue(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.C_NAME_COL));
             String homeLat = Bytes.toString(r.getValue(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.C_LAT_COL));
             String homeLon = Bytes.toString(r.getValue(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.C_LON_COL));
@@ -154,7 +155,6 @@ public class HbaseFraudService {
             double avgSpent = round(pojo.getTotalSpent() + pojo.getLastTransactionAmount() / totalTxns,2);
             double totalSpent = round(pojo.getTotalSpent() + pojo.getLastTransactionAmount(),2);
 
-        /*TODO implement last 20 logic */
             Put put = new Put(Bytes.toBytes(rowKey));
             put.add(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.LAST_TXN_TIME, Bytes.toBytes(pojo.getLastTransactionTime()));
             put.add(DataModelConsts.CUSTOMER_COLUMN_FAMILY, DataModelConsts.LAST_TXN_AMOUNT_COL, Bytes.toBytes(String.valueOf(pojo.getLastTransactionAmount())));

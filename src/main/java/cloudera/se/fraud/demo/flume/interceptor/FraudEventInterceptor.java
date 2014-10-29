@@ -22,26 +22,35 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;
 
+import cloudera.se.fraud.demo.flume.interceptor.FraudEventInterceptor.Constants;
+
 public class FraudEventInterceptor implements Interceptor {
 
-    private static final Logger log = Logger.getLogger(FraudEventInterceptor.class);
-    private static final String d = "|";
+    private final Logger log = Logger.getLogger(FraudEventInterceptor.class);
+    private final String d = "|";
+    private final int threadNum;
 
     private HbaseFraudService hbaseFraudService;
     private TravelScoreService travelScoreService;
-    public FraudEventInterceptor() { }
+    private ExecutorService executorService = null;
 
-    static ExecutorService executorService = Executors.newFixedThreadPool(20);
-
+    /**
+     * Only {@link FraudEventInterceptor.Builder} can build me
+     */
+    private FraudEventInterceptor(int threadNum) {
+        this.threadNum = threadNum;
+    }
+    // static ExecutorService executorService = Executors.newFixedThreadPool(20);
     /**
      * Any initialization / startup needed by the Interceptor.
      */
     @Override
     public void initialize()
     {
+        log.info("Starting Initialize");
         hbaseFraudService = new HbaseFraudService();
         travelScoreService = new TravelScoreService();
-        log.info("Starting Initialize");
+        executorService = Executors.newFixedThreadPool(threadNum);
     }
 
     private String convertToJSON (FinalTransactionPOJO finalTxn) {
@@ -57,7 +66,6 @@ public class FraudEventInterceptor implements Interceptor {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-
         }
         return json;
     }
@@ -70,7 +78,8 @@ public class FraudEventInterceptor implements Interceptor {
     @Override
     public Event intercept(Event event) {
         log.debug("Intercepting event");
-       // Map<String, String> headers = event.getHeaders();
+        Map<String, String> headers = event.getHeaders();
+        headers.put("topic", "flume.auths");
         Pattern p = Pattern.compile("\\|+");
         String txn = Bytes.toString(event.getBody());
         String[] tokens = p.split(txn);
@@ -95,7 +104,6 @@ public class FraudEventInterceptor implements Interceptor {
             txnLat = location[0];
             txnLon = location[1];
         } catch (IOException e) {
-            log.debug("Error at line 79");
             log.debug(e);
         }
 
@@ -110,9 +118,7 @@ public class FraudEventInterceptor implements Interceptor {
         try {
             result = travelScoreService.calcTravelScore(score);
         } catch (Exception e) {
-            log.debug("Error at line 93");
             log.debug(e);
-            e.printStackTrace();
         }
         String authResult = "N";
         String alertYN = "N";
@@ -147,7 +153,6 @@ public class FraudEventInterceptor implements Interceptor {
         try { log.debug("Saving Customer");
             hbaseFraudService.saveCustomerToHbase(customer, txnId); }
         catch (IOException e) {
-            log.debug("Error at line 116");
             log.debug(e);
         }
             /*TODO avro or json */
@@ -169,11 +174,8 @@ public class FraudEventInterceptor implements Interceptor {
      */
     public List<Event> intercept(List<Event> events) {
         log.info("Starting Interceptor Batch");
-        List<Event> result = new ArrayList<Event>();
-        Context c = new Context();
 
         ArrayList<Callable<Event>> callableList = new ArrayList<Callable<Event>>();
-
         for (final Event event : events) {
             callableList.add(new Callable<Event>() {
                 @Override
@@ -206,12 +208,20 @@ public class FraudEventInterceptor implements Interceptor {
 
     public static class Builder implements Interceptor.Builder {
 
+        private int threadNum;
+
         @Override
         public Interceptor build() {
-            return new FraudEventInterceptor();
+            return new FraudEventInterceptor(threadNum);
         }
         @Override
-        public void configure(Context context) {}
+        public void configure(Context context) {
+           threadNum = context.getInteger(Constants.THREADS, Constants.THREADS_DEFAULT);
+        }
     }
 
+    public static class Constants {
+        public static final String THREADS = "threadNum";
+        public static final int THREADS_DEFAULT = 5;
+    }
 }
