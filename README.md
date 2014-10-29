@@ -77,7 +77,7 @@ Store ID | Store Name | Address | Lat | Lon | Phone Number | Type | MCC
 1|AGILEST COLLECTIONS|127 E TRINITY PLDECATUR GA 30030|33.773344|-84.296021||FURNISHINGS / APPLIANCES OFFICE & HOME |5712
 2|AGNES SCOTT COLLEGE|141 E COLLEGE AVEDECATUR GA 30030|33.76825|-84.294489|(404) 471-6000|BUSINESS / PROFESSIONAL SERVICES |7399
 
-The LoadSeedData method in the java application simply loads these files into HBase, for retrieval later. 
+The LoadSeedData class in the java application simply loads these files into HBase, for retrieval later. 
 The gen_transaction.py script picks a random record from the stores and customers table and generates a transaction:
 
 ```
