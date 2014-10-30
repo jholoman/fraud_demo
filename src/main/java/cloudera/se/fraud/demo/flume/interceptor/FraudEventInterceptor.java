@@ -185,15 +185,41 @@ public class FraudEventInterceptor implements Interceptor {
                 }
             });
         }
-        try {
+        /*try {
             List<Future<Event>> futures = executorService.invokeAll(callableList);
+            for (Future<Event> f: futures) {
+                f.get();
+            }
         } catch (InterruptedException e) {
-            log.debug(e);
+            e.printStackTrace();
+        } catch (ExecutionException e2) {
+            e2.printStackTrace();
+        }*/
+
+        try {
+            runCompletion(executorService, callableList);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e2) {
+            e2.printStackTrace();
         }
         log.info("Ending Interceptor Batch");
-
         return events;
     }
+
+    private void runCompletion(Executor e, ArrayList<Callable<Event>> events)
+            throws InterruptedException, ExecutionException {
+       CompletionService<Event> ecs = new ExecutorCompletionService<Event>(e);
+        for (Callable<Event> event : events)
+            ecs.submit(event);
+        int n = events.size();
+        for (int i = 0; i < n; ++i) {
+            Future<Event> f = ecs.take();
+            f.get();
+        }
+    }
+
+
     /**
      * Perform any closing / shutdown needed by the Interceptor.
      */

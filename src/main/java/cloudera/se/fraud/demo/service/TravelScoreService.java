@@ -54,9 +54,6 @@ public class TravelScoreService {
         }
         int score;
         double mph = distance / (elapsedSecs / 3600);
-        log.info("distance: " + distance);
-        log.info("elapsedSec: " + elapsedSecs);
-        log.info("mph: " + mph);
         double stddev = 6;
         double mean = 45;
         double z = (mph - mean) / stddev;
@@ -71,7 +68,6 @@ public class TravelScoreService {
             score = 4;
         }
 
-        log.info("z: " + z);
         return score;
 
     }
