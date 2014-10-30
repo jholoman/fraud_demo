@@ -251,9 +251,9 @@ for (Event event : events) {
 In order to process each event as quickly as possible, we’ll use multiple threads to process the batch in parallel, as HBase can scale to accommodate multiple threads per region server.
 
 ```java
-public List<Event> intercept(List<Event> events) {
+ public List<Event> intercept(List<Event> events) {
         log.info("Starting Interceptor Batch");
-        
+
         ArrayList<Callable<Event>> callableList = new ArrayList<Callable<Event>>();
         for (final Event event : events) {
             callableList.add(new Callable<Event>() {
@@ -264,13 +264,27 @@ public List<Event> intercept(List<Event> events) {
                 }
             });
         }
-        try {
-            List<Future<Event>> futures = executorService.invokeAll(callableList);
+    try {
+         runCompletion(executorService, callableList);
         } catch (InterruptedException e) {
-            log.debug(e);
+            e.printStackTrace();
+        } catch (ExecutionException e2) {
+            e2.printStackTrace();
         }
         log.info("Ending Interceptor Batch");
         return events;
+    }
+
+    private void runCompletion(Executor e, ArrayList<Callable<Event>> events)
+            throws InterruptedException, ExecutionException {
+       CompletionService<Event> ecs = new ExecutorCompletionService<Event>(e);
+        for (Callable<Event> event : events)
+            ecs.submit(event);
+        int n = events.size();
+        for (int i = 0; i < n; ++i) {
+            Future<Event> f = ecs.take();
+            f.get();
+        }
     }
 ```
  
