@@ -217,7 +217,7 @@ customer.setLastTransactionLon(txnLon);
 customer.setLastTransactionTime(txnTime);
         customer.setLast20Amounts(HbaseFraudService.pushValue(String.valueOf(txnAmount), customer.getLast20Amounts()));
 customer.setLast20Locations(HbaseFraudService.pushValue(txnLat +"|"+ txnLon, customer.getLast20Locations()));
-```java
+```
 
 With the customer record updated, we can persist these values back to HBase:
 
@@ -228,7 +228,7 @@ try { log.debug("Saving Customer");
      catch (IOException e) {
        log.debug(e);
      }
-```java
+```
 For final formatting, we’ll convert to JSON and return the event:
 
 ```java
@@ -236,7 +236,7 @@ String message = convertToJSON(finalTxn);
 event.setBody(message.getBytes());
 log.debug("returning event");
 return event;
-```java
+```
 
 Because flume processes events in batches, we must also implement the method below to process the entire batch, which will call our intercept(event) method. Below is the standard implementation:
 
